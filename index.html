@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minecraft Cape Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 20px;
+        }
+        canvas {
+            border: 1px solid #000;
+            background-color: #fff;
+            margin: 20px auto;
+            display: block;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        input[type="file"] {
+            margin: 20px auto;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <h1>Minecraft Cape Generator</h1>
+    <p>Lade ein Bild hoch, um dein eigenes Minecraft Cape im Deutschlandflagge-Design zu erstellen!</p>
+
+    <input type="file" id="imageUpload" accept="image/*">
+
+    <canvas id="capeCanvas" width="64" height="32"></canvas>
+    <br>
+    <button id="generateCape">Cape aus Bild erstellen</button>
+    <button id="downloadCape">Cape herunterladen</button>
+
+    <script>
+        const canvas = document.getElementById('capeCanvas');
+        const ctx = canvas.getContext('2d');
+        const downloadButton = document.getElementById('downloadCape');
+        const generateButton = document.getElementById('generateCape');
+        const imageUpload = document.getElementById('imageUpload');
+
+        let uploadedImage = null;
+
+        imageUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    uploadedImage = new Image();
+                    uploadedImage.onload = function() {
+                        ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
+                    };
+                    uploadedImage.src = event.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        generateButton.addEventListener('click', function() {
+            if (!uploadedImage) {
+                alert("Bitte lade zuerst ein Bild hoch!");
+                return;
+            }
+
+            // Cape im Deutschlandflagge-Design (schwarz-rot-gold) erstellen
+            ctx.drawImage(uploadedImage, 0, 0, canvas.width, canvas.height);
+
+            // Transparente Farbschicht für das Cape-Design
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = canvas.width;
+            tempCanvas.height = canvas.height;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            // Cape-Design auf temporärem Canvas zeichnen
+            tempCtx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            tempCtx.fillRect(0, 0, 21, canvas.height);
+
+            tempCtx.fillStyle = 'rgba(255, 0, 0, 0.7)';
+            tempCtx.fillRect(21, 0, 22, canvas.height);
+
+            tempCtx.fillStyle = 'rgba(255, 206, 0, 0.7)';
+            tempCtx.fillRect(43, 0, 21, canvas.height);
+
+            // Cape-Design auf das Originalbild zeichnen
+            ctx.drawImage(tempCanvas, 0, 0);
+        });
+
+        downloadButton.addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'minecraft-cape-deutschland.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        });
+    </script>
+</body>
+</html>
